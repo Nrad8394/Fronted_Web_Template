@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WORKDIR: next_template
+  NODE_VERSION: "22"
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+          head: ${{ github.sha }}
+          # Verified-only: the scanner confirms the credential actually works
+          # before reporting it. A scanner that cries wolf is one people mute.
+          extra_args: --only-verified
+
+  lint:
+    name: Lint + typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WORKDIR }}/package-lock.json
+      - working-directory: ${{ env.WORKDIR }}
+        run: npm ci
+      - working-directory: ${{ env.WORKDIR }}
+        run: npm run lint
+      - working-directory: ${{ env.WORKDIR }}
+        # Separate from lint: ESLint does not typecheck, and a type error that
+        # only surfaces during `next build` is found far too late.
+        run: npm run typecheck
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WORKDIR }}/package-lock.json
+      - working-directory: ${{ env.WORKDIR }}
+        run: npm ci
+      - working-directory: ${{ env.WORKDIR }}
+        run: npm run test:coverage
+      - uses: codecov/codecov-action@v4
+        with:
+          files: ${{ env.WORKDIR }}/coverage/coverage-final.json
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WORKDIR }}/package-lock.json
+      - working-directory: ${{ env.WORKDIR }}
+        run: npm ci
+      - working-directory: ${{ env.WORKDIR }}
+        # A production build catches a category of failure `next dev` never
+        # does — most commonly a `useSearchParams()` without a Suspense
+        # boundary, which builds fine locally and fails only here.
+        run: npm run build
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.WORKDIR }}/package-lock.json
+      - working-directory: ${{ env.WORKDIR }}
+        run: npm ci
+      - working-directory: ${{ env.WORKDIR }}
+        # Advisory. A new advisory in a transitive dev dependency should be
+        # visible, not a blocker on an unrelated bugfix. `--production` skips
+        # build-only packages, which is where most of the noise lives.
+        continue-on-error: true
+        run: npm audit --audit-level=high --production
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ env.WORKDIR }}/Dockerfile
+          failure-threshold: error
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.WORKDIR }}
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VCS_REF=${{ github.sha }}

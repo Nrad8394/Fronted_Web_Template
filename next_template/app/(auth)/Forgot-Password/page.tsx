@@ -1,45 +1,103 @@
-// pages/auth/forgot-password.tsx
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import Input from '@/components/Input';
+'use client';
 
-const ForgotPassword: React.FC = () => {
-  const { loading, error } = useAuth();
+/**
+ * Request a password-reset email.
+ *
+ * One detail worth keeping: the success state is shown whether or not the
+ * address exists. Reporting "no account with that email" turns this form into
+ * an account-enumeration oracle — anyone can test a list of addresses against
+ * your user base, which is useful for credential stuffing and for confirming
+ * that a particular person uses your service.
+ *
+ * The Django template's reset endpoint returns the same response either way,
+ * so the two halves agree. If your backend differs, fix the backend; papering
+ * over it here still leaks through response timing.
+ */
+
+import Link from 'next/link';
+import { useState, type FormEvent } from 'react';
+
+import { AuthAPI } from '@/lib/auth/auth-api';
+import { normalizeError } from '@/lib/api/errors';
+import { Field } from '@/components/ui/field';
+
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [forgotPasswordError, setForgotPasswordError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setFormError(null);
+    setSubmitting(true);
+
     try {
-      // Call your forgot password API here
-      console.log('Forgot password for email:', email);
-    } catch (err) {
-      setForgotPasswordError('Failed to reset password, please try again.');
+      await AuthAPI.requestPasswordReset(email);
+      setSent(true);
+    } catch (error) {
+      const normalized = normalizeError(error);
+      // A 4xx here is a malformed address or a rate limit — both worth
+      // showing. It is not "no such user"; see the note above.
+      setFormError(normalized.message);
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }
+
+  if (sent) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-4">
+        <h1 className="mb-3 text-2xl font-semibold">Check your email</h1>
+        <p className="mb-6 text-sm opacity-80">
+          If an account exists for {email}, a reset link is on its way. The
+          link expires shortly, so use it soon.
+        </p>
+        <Link href="/login" className="text-sm underline">
+          Back to sign in
+        </Link>
+      </main>
+    );
+  }
 
   return (
-    <div className="max-w-sm mx-auto mt-12 p-6 border rounded shadow">
-      <h2 className="text-2xl font-semibold mb-4">Forgot Password</h2>
-      <form onSubmit={handleSubmit}>
-        <Input
+    <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-4">
+      <h1 className="mb-2 text-2xl font-semibold">Reset your password</h1>
+      <p className="mb-6 text-sm opacity-80">
+        Enter your email and we will send you a link.
+      </p>
+
+      <form onSubmit={handleSubmit} noValidate>
+        {formError && (
+          <div
+            role="alert"
+            className="mb-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200"
+          >
+            {formError}
+          </div>
+        )}
+
+        <Field
           label="Email"
           type="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          error={forgotPasswordError}
+          required
         />
+
         <button
           type="submit"
-          className={`w-full py-2 mt-4 bg-yellow-500 text-white rounded ${loading ? 'opacity-50' : ''}`}
-          disabled={loading}
+          disabled={submitting}
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          {loading ? 'Sending request...' : 'Submit'}
+          {submitting ? 'Sending…' : 'Send reset link'}
         </button>
       </form>
-    </div>
-  );
-};
 
-export default ForgotPassword;
+      <Link href="/login" className="mt-4 text-sm underline">
+        Back to sign in
+      </Link>
+    </main>
+  );
+}

@@ -9,6 +9,19 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        // The stack each OS ships and has already optimised for its own
+        // renderer. No download, no bundle cost, no font-swap layout shift.
+        sans: [
+          'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont',
+          'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif',
+          'Apple Color Emoji', 'Segoe UI Emoji',
+        ],
+        mono: [
+          'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco',
+          'Consolas', 'Liberation Mono', 'Courier New', 'monospace',
+        ],
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
