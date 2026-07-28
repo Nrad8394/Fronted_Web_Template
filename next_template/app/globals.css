@@ -2,250 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Light mode colors */
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #1e40af; /* Blue for primary buttons, links, etc. */
-  --secondary: #f59e0b; /* Accent color for highlights, secondary elements */
-  --card-bg: #f3f4f6; /* Light background for cards, panels, etc. */
-  --heading-color: #171717; /* Color for headings in light mode */
-  --paragraph-color: #4b5563; /* Grayish text for paragraphs in light mode */
-  --input-bg: #f9fafb; /* Background for input fields */
-  --input-border: #d1d5db; /* Border color for input fields */
-  --button-bg: #1e40af; /* Background for primary buttons */
-  --button-hover-bg: #2563eb; /* Hover state for primary buttons */
-  --link-color: #1e40af; /* Color for links */
-  --link-hover-color: #2563eb; /* Hover state for links */
-  --footer-bg: #f3f4f6; /* Footer background */
-}
+/*
+ * Design tokens — the template's single theming surface.
+ *
+ * Semantic HSL triplets in the shadcn/ui convention: values are written
+ * without the `hsl()` wrapper so Tailwind can compose opacity against a
+ * token (`bg-primary/10`), which `#RRGGBB` cannot do. Consuming projects
+ * re-theme by swapping these values only — nothing else in the template
+ * references a colour directly.
+ *
+ * The palette below is a deliberately neutral default (near-black on white,
+ * slate greys). Replace it with your brand's values; keep the token NAMES.
+ *
+ * Two rules worth keeping when you re-theme:
+ *   - `destructive` must not share a hue with `primary`. If delete looks
+ *     like submit, destructive actions become visually routine.
+ *   - Define both blocks. A brand that only themes light mode ships a
+ *     broken dark mode, silently, to every OS-dark user.
+ */
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    /* Dark mode colors */
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #3b82f6; /* Lighter blue for dark mode */
-    --secondary: #fbbf24; /* Yellow for accent in dark mode */
-    --card-bg: #1f2937; /* Darker background for cards */
-    --heading-color: #ffffff; /* White color for headings in dark mode */
-    --paragraph-color: #d1d5db; /* Light gray text for paragraphs in dark mode */
-    --input-bg: #1f2937; /* Darker background for input fields */
-    --input-border: #4b5563; /* Border color for input fields in dark mode */
-    --button-bg: #3b82f6; /* Lighter blue for primary buttons */
-    --button-hover-bg: #2563eb; /* Hover state for primary buttons */
-    --link-color: #3b82f6; /* Color for links in dark mode */
-    --link-hover-color: #2563eb; /* Hover state for links in dark mode */
-    --footer-bg: #1f2937; /* Footer background for dark mode */
+    --background: 0 0% 100%;
+    --foreground: 224 14% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 14% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 14% 10%;
+
+    --primary: 224 14% 16%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 14% 10%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 45%;
+
+    --accent: 220 14% 93%;
+    --accent-foreground: 224 14% 10%;
+
+    /* Success / confirmation. Named by role, not hue. */
+    --positive: 152 60% 32%;
+    --positive-foreground: 0 0% 98%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 224 14% 16%;
+
+    --radius: 0.5rem;
+
+    /* Categorical chart palette — ordered for adjacent-contrast. */
+    --chart-1: 220 60% 45%;
+    --chart-2: 152 60% 36%;
+    --chart-3: 36 80% 48%;
+    --chart-4: 280 45% 50%;
+    --chart-5: 190 55% 40%;
+  }
+
+  .dark {
+    --background: 224 14% 7%;
+    --foreground: 220 14% 93%;
+
+    --card: 224 13% 10%;
+    --card-foreground: 220 14% 93%;
+
+    --popover: 224 13% 10%;
+    --popover-foreground: 220 14% 93%;
+
+    --primary: 220 14% 93%;
+    --primary-foreground: 224 14% 10%;
+
+    --secondary: 223 12% 16%;
+    --secondary-foreground: 220 14% 93%;
+
+    --muted: 223 12% 16%;
+    --muted-foreground: 220 9% 62%;
+
+    --accent: 223 12% 20%;
+    --accent-foreground: 220 14% 93%;
+
+    --positive: 152 50% 45%;
+    --positive-foreground: 224 14% 7%;
+
+    --destructive: 0 62% 52%;
+    --destructive-foreground: 224 14% 7%;
+
+    --border: 223 12% 20%;
+    --input: 223 12% 20%;
+    --ring: 220 14% 83%;
+
+    --chart-1: 220 65% 60%;
+    --chart-2: 152 50% 48%;
+    --chart-3: 36 80% 58%;
+    --chart-4: 280 50% 62%;
+    --chart-5: 190 55% 52%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  /*
+   * Tabular figures for anything numeric-columnar (tables of amounts, IDs,
+   * timestamps). Proportional figures make columns ragged and genuinely
+   * harder to scan for an anomaly.
+   */
+  .font-mono,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-/* Button Styles */
-button {
-  background-color: var(--button-bg);
-  color: var(--foreground);
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: var(--button-hover-bg);
-}
-
-/* Input Field Styles */
-input, textarea, select {
-  background-color: var(--input-bg);
-  color: var(--foreground);
-  border: 2px solid var(--input-border);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: var(--primary);
-  outline: none;
-}
-
-/* Card Styles */
-.card {
-  background-color: var(--card-bg);
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Link Styles */
-a {
-  color: var(--link-color);
-  text-decoration: none;
-}
-
-a:hover {
-  color: var(--link-hover-color);
-  text-decoration: underline;
-}
-
-/* Header Styles */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--heading-color);
-  font-family: 'Arial', Helvetica, sans-serif;
-  font-weight: bold;
-}
-
-h1 {
-  font-size: 2.5rem; /* Large size for H1 */
-}
-
-h2 {
-  font-size: 2rem; /* Medium size for H2 */
-}
-
-h3 {
-  font-size: 1.75rem; /* Slightly smaller for H3 */
-}
-
-h4 {
-  font-size: 1.5rem;
-}
-
-h5 {
-  font-size: 1.25rem;
-}
-
-h6 {
-  font-size: 1rem;
-}
-
-/* Paragraph Styles */
-p {
-  color: var(--paragraph-color);
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  color: var(--foreground);
-  padding: 20px;
-  text-align: center;
-  font-size: 0.875rem;
-}
-
-footer a {
-  color: var(--primary);
-}
-
-footer a:hover {
-  color: var(--secondary);
-}
-
-/* Modal Styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-}
-
-.modal-content {
-  background-color: var(--card-bg);
-  padding: 20px;
-  border-radius: 10px;
-  width: 80%;
-  max-width: 600px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Table Styles */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-}
-
-table th, table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--input-border);
-}
-
-table th {
-  background-color: var(--card-bg);
-  font-weight: bold;
-}
-
-table tr:nth-child(even) {
-  background-color: var(--card-bg);
-}
-
-/* Navigation Styles */
-nav {
-  background-color: var(--primary);
-  padding: 10px 20px;
-}
-
-nav a {
-  color: var(--foreground);
-  margin-right: 15px;
-  font-weight: bold;
-}
-
-nav a:hover {
-  color: var(--secondary);
-}
-
-/* List Styles */
-ul, ol {
-  margin-bottom: 1rem;
-  margin-left: 20px;
-}
-
-ul li, ol li {
-  color: var(--paragraph-color);
-}
-
-/* Tooltip Styles */
-.tooltip {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: var(--foreground);
-  color: var(--background);
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%; /* Position above the tooltip */
-  left: 50%;
-  margin-left: -60px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
+/*
+ * Deliberately no element-level styling below this line.
+ *
+ * The previous version of this file styled `button`, `input`, `table`, `nav`,
+ * `h1`-`h6` and more directly. That fights Tailwind utilities and shadcn/ui
+ * components on specificity, and every component ships its own styles anyway.
+ * If you need a global primitive, add a component class under @layer
+ * components — never bare element selectors.
+ */
