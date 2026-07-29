@@ -14,10 +14,28 @@ one error path instead of a growing pile of special cases.
 
 ```bash
 cd next_template
-cp .env.example .env.local
+cp .env.example .env.local     # REQUIRED — see below
 npm install
 npm run dev
 ```
+
+> **`.env.local` is not optional in development.** Without it `getApiUrl()`
+> falls back to `/api`, a same-origin path that assumes a reverse proxy in
+> front of both the app and the API. That is right in production and silently
+> fatal under `next dev`: nothing serves the path, so every request lands on
+> the Next server and 404s — the app renders perfectly and never reaches the
+> backend. Set `NEXT_PUBLIC_API_URL` and **restart the dev server**; env files
+> are read at startup only. `lib/env.ts` logs a warning naming this the first
+> time it falls back.
+
+## Styling
+
+Colour comes from the token layer in `app/globals.css` only. **If a class
+names a palette colour (`blue-600`, `gray-300`), it is a bug** — it ignores
+the project's brand and is usually wrong in dark mode. Use `primary`,
+`destructive`, `positive`, `muted`, `input`, `border`, `popover`. A focus ring
+offset needs `ring-offset-background` or its gap paints white on dark
+surfaces. `ThemeToggle` gives users light / dark / **system**.
 
 Open http://localhost:3000. Point `NEXT_PUBLIC_API_URL` at your backend.
 
