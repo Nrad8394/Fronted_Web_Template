@@ -89,8 +89,30 @@ function normalizeApiUrl(raw: string): string {
  * `NEXT_PUBLIC_API_URL` to an absolute URL when the API is on another host.
  */
 export function getApiUrl(): string {
-  return normalizeApiUrl(
-    readRuntime('NEXT_PUBLIC_API_URL') ?? process.env.NEXT_PUBLIC_API_URL ?? '/api',
+  const configured = readRuntime('NEXT_PUBLIC_API_URL') ?? process.env.NEXT_PUBLIC_API_URL;
+  if (configured === undefined) warnMissingApiUrl();
+  return normalizeApiUrl(configured ?? '/api');
+}
+
+let warned = false;
+
+/**
+ * The `/api` fallback is right in production and a trap in `next dev`.
+ *
+ * With no proxy in front, every request goes to the Next dev server, which
+ * has no such route — so the app renders perfectly and silently never reaches
+ * the backend. That failure took a while to diagnose once; it should never
+ * cost anyone that again, so name the cause the first time it happens.
+ */
+function warnMissingApiUrl(): void {
+  if (warned || process.env.NODE_ENV !== 'development') return;
+  warned = true;
+  console.warn(
+    '[env] NEXT_PUBLIC_API_URL is not set, so API calls will go to "/api" on ' +
+      'this origin. In `next dev` nothing serves that path and every request ' +
+      'will 404 without reaching the backend. Run `cp .env.example .env.local`, ' +
+      'set NEXT_PUBLIC_API_URL (e.g. http://localhost:8000), and restart the ' +
+      'dev server — env files are read at startup only.',
   );
 }
 

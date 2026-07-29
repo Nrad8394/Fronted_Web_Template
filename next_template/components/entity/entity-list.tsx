@@ -28,12 +28,15 @@ import type { Paginated } from '@/lib/api/types';
 import { EntityFilters } from './entity-filters';
 import { ActionMenu } from './action-menu';
 
+// Token-derived, not raw palette. Each tone is one semantic colour at 12%
+// for the fill and full strength for the text, so a single set of classes
+// works in both themes — the token itself already shifts between them.
 const toneClass: Record<string, string> = {
-  neutral: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-  success: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
-  warning: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-  danger: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-  info: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+  neutral: 'bg-muted text-muted-foreground',
+  success: 'bg-positive/12 text-positive',
+  warning: 'bg-accent/15 text-accent',
+  danger: 'bg-destructive/12 text-destructive',
+  info: 'bg-primary/10 text-primary',
 };
 
 interface EntityListProps<T extends BaseEntity> {
@@ -69,8 +72,8 @@ export function EntityList<T extends BaseEntity>({
 
   if (error) {
     return (
-      <div role="alert" className="rounded-md border border-red-300 p-6 text-center">
-        <p className="text-sm text-red-700 dark:text-red-300">{error.message}</p>
+      <div role="alert" className="rounded-md border border-destructive/40 p-6 text-center">
+        <p className="text-sm text-destructive">{error.message}</p>
         {onRetry && (
           <button
             type="button"
@@ -112,7 +115,7 @@ export function EntityList<T extends BaseEntity>({
           <caption className="sr-only">
             {config.namePlural ?? `${config.name}s`}
           </caption>
-          <thead className="border-b bg-gray-50 text-left dark:bg-gray-900">
+          <thead className="border-b bg-muted/50 text-left">
             <tr>
               {selectable && (
                 <th scope="col" className="w-10 px-3 py-2">
@@ -269,7 +272,7 @@ function Toolbar<T extends BaseEntity>({
           onClick={() => controller.setShowDeleted(!controller.state.showDeleted)}
           className={[
             'rounded-md border px-2 py-1.5 text-sm',
-            controller.state.showDeleted ? 'bg-gray-100 dark:bg-gray-800' : '',
+            controller.state.showDeleted ? 'bg-muted' : '',
           ].join(' ')}
         >
           {controller.state.showDeleted ? 'Showing trash' : 'Trash'}
@@ -303,7 +306,7 @@ function BulkActionButton<T extends BaseEntity>({
       }}
       className={[
         'rounded-md border px-2 py-1 text-sm',
-        action.tone === 'danger' ? 'border-red-300 text-red-700 dark:text-red-300' : '',
+        action.tone === 'danger' ? 'border-destructive/40 text-destructive' : '',
       ].join(' ')}
     >
       {action.label}
@@ -430,7 +433,7 @@ function Row<T extends BaseEntity>({
     <tr
       className={[
         'border-b last:border-0',
-        clickable ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900' : '',
+        clickable ? 'cursor-pointer hover:bg-muted/50' : '',
       ].join(' ')}
       onClick={clickable ? () => config.onRowClick?.(row) : undefined}
     >
@@ -523,7 +526,7 @@ function SkeletonRows({ columns, pageSize }: { columns: number; pageSize: number
         <tr key={rowIndex} className="border-b last:border-0">
           {Array.from({ length: columns + 1 }).map((__, cellIndex) => (
             <td key={cellIndex} className="px-3 py-3">
-              <div className="h-3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+              <div className="h-3 animate-pulse rounded bg-muted" />
             </td>
           ))}
         </tr>

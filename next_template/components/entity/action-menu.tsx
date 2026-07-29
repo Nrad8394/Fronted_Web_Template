@@ -84,7 +84,7 @@ function ActionButton<T extends BaseEntity>({
       onClick={() => runAction(action, row)}
       className={[
         'rounded px-2 py-1 text-xs',
-        action.tone === 'danger' ? 'text-red-700 dark:text-red-300' : '',
+        action.tone === 'danger' ? 'text-destructive' : '',
         disabled ? 'opacity-40' : 'hover:underline',
       ].join(' ')}
     >
@@ -156,7 +156,7 @@ function Overflow<T extends BaseEntity>({
         aria-expanded={open}
         aria-label="More actions"
         onClick={() => setOpen((value) => !value)}
-        className="rounded px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
+        className="rounded px-2 py-1 text-xs hover:bg-muted"
       >
         <span aria-hidden="true">⋯</span>
       </button>
@@ -165,7 +165,7 @@ function Overflow<T extends BaseEntity>({
         <div
           role="menu"
           onKeyDown={onMenuKeyDown}
-          className="absolute right-0 z-20 mt-1 min-w-[10rem] rounded-md border bg-white py-1 shadow-lg dark:bg-gray-950"
+          className="absolute right-0 z-20 mt-1 min-w-[10rem] rounded-md border bg-popover py-1 text-popover-foreground shadow-lg"
         >
           {actions.map((action, index) => {
             const disabled = action.disabled?.(row) ?? false;
@@ -184,10 +184,10 @@ function Overflow<T extends BaseEntity>({
                 }}
                 className={[
                   'block w-full px-3 py-1.5 text-left text-xs',
-                  action.tone === 'danger' ? 'text-red-700 dark:text-red-300' : '',
+                  action.tone === 'danger' ? 'text-destructive' : '',
                   disabled
                     ? 'opacity-40'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800',
+                    : 'hover:bg-muted',
                 ].join(' ')}
               >
                 {action.label}

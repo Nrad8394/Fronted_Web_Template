@@ -56,7 +56,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
             {/* The asterisk is decorative; the input's `required` attribute
                 is what a screen reader announces. Hiding it here avoids
                 "label star" being read out. */}
-            <span aria-hidden="true" className="ml-0.5 text-red-600">
+            <span aria-hidden="true" className="ml-0.5 text-destructive">
               *
             </span>
             <span className="sr-only"> (required)</span>
@@ -73,10 +73,13 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         aria-describedby={describedBy || undefined}
         className={[
           'block w-full rounded-md border px-3 py-2 text-sm',
-          'focus:outline-none focus:ring-2 focus:ring-offset-1',
+          // ring-offset-background, not a bare offset: the offset gap is
+          // painted, so without a token it renders white and haloes the
+          // input in dark mode.
+          'focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-background',
           error
-            ? 'border-red-500 focus:ring-red-500'
-            : 'border-gray-300 focus:ring-blue-500 dark:border-gray-700',
+            ? 'border-destructive focus:ring-destructive'
+            : 'border-input focus:ring-ring',
           'bg-transparent',
           className,
         ].join(' ')}
@@ -91,7 +94,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
       {error && (
         // role="alert" announces the message when it appears, rather than
         // only when the field is next focused.
-        <p id={errorId} role="alert" className="mt-1 text-xs text-red-600">
+        <p id={errorId} role="alert" className="mt-1 text-xs text-destructive">
           {error}
         </p>
       )}

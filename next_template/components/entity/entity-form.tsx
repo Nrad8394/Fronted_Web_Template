@@ -187,7 +187,7 @@ export function EntityForm<T extends BaseEntity>({
       {formError && (
         <div
           role="alert"
-          className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200"
+          className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
           {formError}
         </div>
@@ -232,7 +232,7 @@ export function EntityForm<T extends BaseEntity>({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
         >
           {isSubmitting
             ? 'Saving…'
@@ -297,7 +297,7 @@ function FormField<T extends BaseEntity>({
   const inputClass = [
     'block w-full rounded-md border bg-transparent px-3 py-2 text-sm',
     'focus:outline-none focus:ring-2 focus:ring-offset-1',
-    error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-700',
+    error ? 'border-destructive focus:ring-destructive' : 'border-input',
   ].join(' ');
 
   const label = (
@@ -305,7 +305,7 @@ function FormField<T extends BaseEntity>({
       {field.label}
       {field.required && (
         <>
-          <span aria-hidden="true" className="ml-0.5 text-red-600">
+          <span aria-hidden="true" className="ml-0.5 text-destructive">
             *
           </span>
           <span className="sr-only"> (required)</span>
@@ -322,7 +322,7 @@ function FormField<T extends BaseEntity>({
         </p>
       )}
       {error && (
-        <p id={`${name}-error`} role="alert" className="mt-1 text-xs text-red-600">
+        <p id={`${name}-error`} role="alert" className="mt-1 text-xs text-destructive">
           {error}
         </p>
       )}
@@ -495,7 +495,7 @@ function FileField<T extends BaseEntity>({
         {field.label}
         {field.required && (
           <>
-            <span aria-hidden="true" className="ml-0.5 text-red-600">
+            <span aria-hidden="true" className="ml-0.5 text-destructive">
               *
             </span>
             <span className="sr-only"> (required)</span>
@@ -578,7 +578,7 @@ function FileField<T extends BaseEntity>({
         </p>
       )}
       {error && (
-        <p id={`${name}-error`} role="alert" className="mt-1 text-xs text-red-600">
+        <p id={`${name}-error`} role="alert" className="mt-1 text-xs text-destructive">
           {error}
         </p>
       )}

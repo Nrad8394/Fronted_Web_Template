@@ -17,11 +17,11 @@ import type { BaseEntity, ColumnConfig, EntityConfig } from '@/lib/entity/types'
 import { defaultTone, formatValue, readPath } from '@/lib/entity/format';
 
 const toneClass: Record<string, string> = {
-  neutral: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-  success: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
-  warning: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-  danger: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-  info: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+  neutral: 'bg-muted text-muted-foreground',
+  success: 'bg-positive/12 text-positive',
+  warning: 'bg-accent/15 text-accent',
+  danger: 'bg-destructive/12 text-destructive',
+  info: 'bg-primary/10 text-primary',
 };
 
 interface EntityViewProps<T extends BaseEntity> {
@@ -60,7 +60,7 @@ export function EntityView<T extends BaseEntity>({
         {fields.map((field) => (
           <div key={String(field.key)}>
             <dt className="text-xs opacity-60">{field.header}</dt>
-            <dd className="mt-1 h-4 w-2/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+            <dd className="mt-1 h-4 w-2/3 animate-pulse rounded bg-muted" />
           </div>
         ))}
       </dl>

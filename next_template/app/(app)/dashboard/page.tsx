@@ -33,7 +33,7 @@ function Dashboard() {
             aria-label="Theme"
             value={theme}
             onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
-            className="rounded-md border border-gray-300 bg-transparent px-2 py-1 text-sm dark:border-gray-700"
+            className="rounded-md border border-input bg-transparent px-2 py-1 text-sm"
           >
             <option value="system">System</option>
             <option value="light">Light</option>
@@ -41,7 +41,7 @@ function Dashboard() {
           </select>
           <button
             onClick={handleSignOut}
-            className="rounded-md border border-gray-300 px-3 py-1 text-sm dark:border-gray-700"
+            className="rounded-md border border-input px-3 py-1 text-sm"
           >
             Sign out
           </button>
